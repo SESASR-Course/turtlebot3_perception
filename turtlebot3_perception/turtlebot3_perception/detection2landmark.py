@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
+import tf2_py as tf2
 
 from rclpy.time import Time
 from apriltag_msgs.msg import AprilTagDetectionArray, AprilTagDetection
@@ -9,12 +10,12 @@ from landmark_interfaces.msg import LandmarkArray, Landmark
 
 import math
 
-class MyNode(Node):
+class Detection2Landmark(Node):
 
     def __init__(self):
-        super().__init__('my_node_name')
+        super().__init__('detection2landmark')
 
-        self.parent_frame = self.declare_parameter('parent_frame', 'base_link').get_parameter_value().string_value
+        self.parent_frame = self.declare_parameter('robot_base_frame', 'base_link').get_parameter_value().string_value
 
         self.landmark_array_pub = self.create_publisher(LandmarkArray, "landmarks", 10)
         self.buffer = Buffer()
@@ -33,7 +34,11 @@ class MyNode(Node):
             landmark.decision_margin = tag.decision_margin
             target_frame = f"{tag.family}:{tag.id}"
             landmark.id = target_frame
-            tf = self.buffer.lookup_transform(self.parent_frame, target_frame, time)
+            # if not transformation is found skip this and go to the next landmark
+            try: 
+                tf = self.buffer.lookup_transform(self.parent_frame, target_frame, time)
+            except tf2.TransformException:
+                continue
             x, y, z = tf.transform.translation.x, tf.transform.translation.y, tf.transform.translation.z
             landmark.range = math.sqrt(x**2 + y**2 + z**2)
             landmark.bearing = math.atan2(y, x)
@@ -44,13 +49,13 @@ class MyNode(Node):
 
 def main():
     rclpy.init()
-    my_node = MyNode()
+    node = Detection2Landmark()
     try:
-        rclpy.spin(my_node)
+        rclpy.spin(node)
     except KeyboardInterrupt:
         pass
     finally:
-        my_node.destroy_node()  # cleans up pub-subs, etc
+        node.destroy_node()  # cleans up pub-subs, etc
         rclpy.try_shutdown()     
 
 if __name__ == "__main__":
