@@ -24,6 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'detection2landmark = turtlebot3_perception.detection2landmark:main'
         ],
     },
 )
