@@ -41,16 +41,15 @@ def generate_launch_description():
                     )
                 )
             )
-            # TODO put correct values in the TF
             ld.add_action(
                 Node(
                     name="camera_tf_static",
                     package="tf2_ros",
                     executable="static_transform_publisher",
                     arguments=[
-                        "--x", "0.0", "--y", "0.0", "--z", "0.5",
+                        "--x", "-0.05", "--y", "0.0", "--z", "0.245",
                         "--roll", "0.0", "--pitch", "0.0", "--yaw", "0.0",
-                        "--frame-id", "base_link", "--child-frame-id", "camera_link",
+                        "--frame-id", "base_footprint", "--child-frame-id", "camera_link",
                     ],
                     output="screen"
                 )
@@ -58,21 +57,22 @@ def generate_launch_description():
             # fmt: on
         case "oakd":
             # fmt: off
+            params_file = PathJoinSubstitution([FindPackageShare("turtlebot3_perception"), "config", "oakd_config.yaml"])
             ld.add_action(
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
                         PathJoinSubstitution([FindPackageShare("depthai_ros_driver"), "launch", "camera.launch.py"])
                     ),
-                    # TODO put correct values in the TF
                     launch_arguments={
                         "rs_compat": "true",
-                        "parent_frame": "base_link",
-                        "cam_pos_x": "0.0",
+                        "parent_frame": "base_footprint",
+                        "cam_pos_x": "-0.062",
                         "cam_pos_y": "0.0",
-                        "cam_pos_z": "0.5",
+                        "cam_pos_z": "0.250",
                         "cam_roll": "0.0",
                         "cam_pitch": "0.0",
                         "cam_yaw": "0.0",
+                        "params_file": params_file,
                     }.items(),
                 )
             )
