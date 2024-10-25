@@ -5,6 +5,7 @@ from ament_index_python import get_package_share_directory
 
 import os
 
+
 def generate_launch_description():
 
     package_name = "turtlebot3_perception"
@@ -14,21 +15,30 @@ def generate_launch_description():
     )
 
     load_composable_nodes = LoadComposableNodes(
-        target_container='/camera/camera_container',
+        target_container="/camera/camera_container",
         composable_node_descriptions=[
             ComposableNode(
                 namespace="camera",
-                package='apriltag_ros',
-                plugin='AprilTagNode',
-                name='apriltag',
+                package="apriltag_ros",
+                plugin="AprilTagNode",
+                name="apriltag",
                 remappings=[
                     ("image_rect", "camera/color/image_raw"),
                     ("camera_info", "camera/color/camera_info"),
                 ],
                 parameters=[params],
-                extra_arguments=[{'use_intra_process_comms': True}],
+                extra_arguments=[{"use_intra_process_comms": True}],
             ),
         ],
     )
 
-    return LaunchDescription([load_composable_nodes])
+    landmark_node = Node(
+        namespace="camera",
+        package="turtlebot3_perception",
+        executable="detection2landmark",
+        output="screen",
+        emulate_tty=True,
+        parameters=[{"robot_base_frame": "base_link"}]
+    )
+
+    return LaunchDescription([load_composable_nodes, landmark_node])
