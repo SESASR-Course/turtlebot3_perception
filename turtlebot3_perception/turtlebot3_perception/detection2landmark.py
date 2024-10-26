@@ -40,7 +40,7 @@ class Detection2Landmark(Node):
             except tf2.TransformException:
                 continue
             x, y, z = tf.transform.translation.x, tf.transform.translation.y, tf.transform.translation.z
-            landmark.range = math.sqrt(x**2 + y**2 + z**2)
+            landmark.range = math.sqrt(x**2 + y**2)
             landmark.bearing = math.atan2(y, x)
             landmarks_msg.landmarks.append(landmark)
 
