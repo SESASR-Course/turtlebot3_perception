@@ -23,6 +23,59 @@ def timeit(func):
         return result
     return timeit_wrapper
 
+@timeit
+def laserscan2lines(scan: LaserScan):
+    """
+    A function to detect lines from a LaserScan message using RANSAC.
+
+    :param scan: A sensor_msgs/LaserScan message
+    :return: A list of detected lines, where each line is a list of points (x, y) and the line equation (slope, intercept)
+    """
+
+    # Convert LaserScan ranges to Cartesian coordinates
+    angles = np.linspace(scan.angle_min, scan.angle_max, len(scan.ranges))
+    ranges = np.array(scan.ranges)
+
+    # Filter out invalid ranges (e.g., values at infinity)
+    valid_indices = np.isfinite(ranges) & (ranges < scan.range_max) & (ranges > scan.range_min)
+    angles = angles[valid_indices]
+    ranges = ranges[valid_indices]
+
+    # Calculate x and y coordinates
+    x_points = ranges * np.cos(angles)
+    y_points = ranges * np.sin(angles)
+    points = np.vstack((x_points, y_points)).T
+
+    lines = []  # To store detected lines
+    line_equations = []  # To store line equations
+
+    # Detect multiple lines using iterative RANSAC
+    min_points_for_line = 30  # Minimum points to define a line
+    ransac = RANSACRegressor(residual_threshold=0.1)
+
+    while len(points) > min_points_for_line:
+        # Fit RANSAC model to the remaining points
+        ransac.fit(points[:, 0].reshape(-1, 1), points[:, 1])
+
+        # Extract inliers and outliers
+        inlier_mask = ransac.inlier_mask_
+        line_points = points[inlier_mask]
+        line_model = ransac.estimator_
+
+        # Save the detected line
+        if len(line_points) >= min_points_for_line:
+            lines.append(line_points)
+
+            # Get line equation parameters
+            slope = line_model.coef_[0]   # m in y = mx + c
+            intercept = line_model.intercept_  # c in y = mx + c
+            line_equations.append((slope, intercept))
+        # Remove inlier points and continue
+        points = points[~inlier_mask]
+    
+    return lines, line_equations
+
+
 
 class LaserScan2Lines(Node):
 
@@ -30,62 +83,30 @@ class LaserScan2Lines(Node):
         super().__init__('laserscan2lines')
 
         self.create_subscription(LaserScan, "scan", self.callback, 10)
+        plt.figure(figsize=(8, 5))
+        plt.show(block=False)
+        self.plot_locked = False
 
-    @timeit
+
     def callback(self, msg: LaserScan):
-        # Convert LaserScan ranges to Cartesian coordinates
-        angles = np.linspace(msg.angle_min, msg.angle_max, len(msg.ranges))
-        ranges = np.array(msg.ranges)
 
-        # Filter out invalid ranges (e.g., values at infinity)
-        valid_indices = np.isfinite(ranges)
-        angles = angles[valid_indices]
-        ranges = ranges[valid_indices]
+        lines, line_equations = laserscan2lines(msg)
 
-        # Calculate x and y coordinates
-        x_points = ranges * np.cos(angles)
-        y_points = ranges * np.sin(angles)
-        points = np.vstack((x_points, y_points)).T
+        self.get_logger().info(f"Toatal lines detected {len(lines)}")
+        for line_points, (slope, intercept) in zip(lines, line_equations):
+            self.get_logger().info(f"Detected line with {len(line_points)} points, [y = {slope:.2f}x + {intercept:.2f}]")
 
-        lines = []  # To store detected lines
-        line_equations = []  # To store line equations
-
-        # Detect multiple lines using iterative RANSAC
-        min_points_for_line = 50  # Minimum points to define a line
-        ransac = RANSACRegressor(residual_threshold=0.1)
-
-        while len(points) > min_points_for_line:
-            # Fit RANSAC model to the remaining points
-            ransac.fit(points[:, 0].reshape(-1, 1), points[:, 1])
-
-            # Extract inliers and outliers
-            inlier_mask = ransac.inlier_mask_
-            line_points = points[inlier_mask]
-
-            # Save the detected line
-            if len(line_points) >= min_points_for_line:
-                lines.append(line_points)
-
-                # Fit a linear regression model to the inlier points to get the line equation
-                line_model = LinearRegression()
-                line_model.fit(line_points[:, 0].reshape(-1, 1), line_points[:, 1])
-
-                # Get line equation parameters
-                slope = line_model.coef_[0]   # m in y = mx + c
-                intercept = line_model.intercept_  # c in y = mx + c
-                line_equations.append((slope, intercept))
-                self.get_logger().info(f"Detected line with {len(line_points)} points, [y = {slope:.2f}x + {intercept:.2f}]")
-
-            # Remove inlier points and continue
-            points = points[~inlier_mask]
         
         # Plot the points and lines
-        # self.plot_lines_and_points(lines, line_equations)
+        self.plot_lines_and_points(lines, line_equations)
 
-    def plot_lines_and_points(self, lines, line_equations):
-        plt.figure(figsize=(10, 8))
-        
+    def plot_lines_and_points(self, lines, line_equations):        
         # Plot each line's points
+        if self.plot_locked:
+            return
+        
+        self.plot_locked = True
+        plt.cla()
         for idx, line_points in enumerate(lines):
             plt.scatter(line_points[:, 0], line_points[:, 1], label=f'Line {idx+1} Points')
 
@@ -94,13 +115,17 @@ class LaserScan2Lines(Node):
             x_vals = np.linspace(np.min(line_points[:, 0]), np.max(line_points[:, 0]), 100)
             y_vals = slope * x_vals + intercept
             plt.plot(x_vals, y_vals, label=f'Line {idx+1}: y = {slope:.2f}x + {intercept:.2f}', linewidth=2)
-
+        plt.xlim(-3.5, 3.5)
+        plt.ylim(-3.5, 3.5)
+        plt.axis('equal')
         plt.xlabel("X (meters)")
         plt.ylabel("Y (meters)")
         plt.title("Detected Lines from LaserScan Data")
         plt.legend()
         plt.grid()
-        plt.show()
+        plt.draw()
+        plt.pause(0.005)
+        self.plot_locked = False
 
 def main():
     rclpy.init()
