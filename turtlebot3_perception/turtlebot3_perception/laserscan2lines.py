@@ -31,7 +31,7 @@ def laserscan2lines(scan: LaserScan):
     line_equations = []  # To store line equations
 
     # Detect multiple lines using iterative RANSAC
-    min_points_for_line = 30  # Minimum points to define a line
+    min_points_for_line = 25  # Minimum points to define a line
     ransac = RANSACRegressor(residual_threshold=0.1)
 
     while len(points) > min_points_for_line: 
@@ -40,12 +40,19 @@ def laserscan2lines(scan: LaserScan):
             stDevY = np.std(points[:, 1])
             verticality = stDevY/stDevX
 
-        if verticality < 15:
+        if verticality < 1.5:
             # Fit RANSAC model to the remaining points
             ransac.fit(points[:, 0].reshape(-1, 1), points[:, 1])
             line_model = ransac.estimator_
             slope = line_model.coef_[0]   # m in y = mx + c
             intercept = line_model.intercept_  # c in y = mx + c
+        elif verticality < 15:
+            ransac.fit(points[:, 1].reshape(-1, 1), points[:, 0])
+            line_model = ransac.estimator_
+            slope = line_model.coef_[0]
+            intercept = line_model.intercept_
+            intercept = - intercept / slope
+            slope = 1 / slope
         else:
             ransac.fit(points[:, 1].reshape(-1, 1), points[:, 0])
             line_model = ransac.estimator_
