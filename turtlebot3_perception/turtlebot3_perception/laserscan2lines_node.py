@@ -33,7 +33,7 @@ class LaserScan2LinesNode(Node):
     def __init__(self):
         super().__init__('laserscan2lines')
 
-        self.create_subscription(LaserScan, "scan", self.callback, 10)
+        self.create_subscription(LaserScan, "scan", self.callback, 2)
         plt.figure(figsize=(8, 5))
         plt.show(block=False)
         self.plot_locked = False
@@ -82,7 +82,7 @@ class LaserScan2LinesNode(Node):
         plt.xlabel("X (meters)")
         plt.ylabel("Y (meters)")
         plt.title("Detected Lines from LaserScan Data")
-        plt.legend()
+        plt.legend(loc='lower left')
         plt.grid()
         plt.draw()
         plt.pause(0.005)
