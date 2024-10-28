@@ -108,7 +108,10 @@ class LaserScan2Lines(Node):
 
         self.get_logger().info(f"Toatal lines detected {len(lines)}")
         for line_points, (slope, intercept) in zip(lines, line_equations):
-            self.get_logger().info(f"Detected line with {len(line_points)} points, [y = {slope:.2f}x + {intercept:.2f}]")
+            if slope == np.inf:
+                self.get_logger().info(f"Detected line with {len(line_points)} points, [x = {intercept:.2f}]")
+            else:
+                self.get_logger().info(f"Detected line with {len(line_points)} points, [y = {slope:.2f}x + {intercept:.2f}]")
 
         
         # Plot the points and lines
