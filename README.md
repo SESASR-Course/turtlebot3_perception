@@ -1,4 +1,6 @@
+
 # Description
+Collection of packages, nodes and algorithms to perform perception tasks using LiDAR and cameras.
 
 # Installation
 1. Install dependencies with rosdep 
@@ -11,8 +13,8 @@ rosdep install --from-path src --ignore-src -y
 sudo ./install_udev
 ```
 # Usage
-
-## Start Camera Driver
+## Drivers
+### Start Camera Driver
 
 1. Set the environment variable CAMERA_MODEL to "realsense" or "oakd"
 2. Launch the camera driver with 
@@ -23,8 +25,19 @@ ros2 launch turtlebot3_perception camera.launch.py
 ```bash 
 ros2 launch turtlebot3_perception apriltag.launch.py
 ```
+## Features extraction
+### Lines from LaserScan
+Run the example node with
+```bash 
+ros2 run turtlebot3_perception laserscan2lines
+```
 
-## Start AprilTag landmark detection
+You can use the function directly in your nodes putting this import in your file
+```python
+from turtlebot3_perception.laserscan2lines import laserscan2lines
+```
+
+### Start AprilTag landmark detection
 
 1. Launch the required nodes with
 ```bash 

@@ -25,7 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'detection2landmark = turtlebot3_perception.detection2landmark:main',
-            'laserscan2lines = turtlebot3_perception.laserscan2lines:main'
+            'laserscan2lines = turtlebot3_perception.laserscan2lines_node:main'
         ],
     },
 )
