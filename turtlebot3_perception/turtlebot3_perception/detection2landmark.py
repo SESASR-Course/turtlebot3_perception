@@ -6,21 +6,28 @@ import tf2_py as tf2
 
 from rclpy.time import Time
 from apriltag_msgs.msg import AprilTagDetectionArray, AprilTagDetection
-from landmark_interfaces.msg import LandmarkArray, Landmark
+from landmark_msgs.msg import LandmarkArray, Landmark
 
 import math
+
 
 class Detection2Landmark(Node):
 
     def __init__(self):
-        super().__init__('detection2landmark')
+        super().__init__("detection2landmark")
 
-        self.parent_frame = self.declare_parameter('robot_base_frame', 'base_link').get_parameter_value().string_value
+        self.parent_frame = (
+            self.declare_parameter("robot_base_frame", "base_link")
+            .get_parameter_value()
+            .string_value
+        )
 
         self.landmark_array_pub = self.create_publisher(LandmarkArray, "landmarks", 10)
         self.buffer = Buffer()
         self.listener = TransformListener(self.buffer, self)
-        self.create_subscription(AprilTagDetectionArray, "detections", self.callback, 10)
+        self.create_subscription(
+            AprilTagDetectionArray, "detections", self.callback, 10
+        )
 
     def callback(self, msg: AprilTagDetectionArray):
         time = Time()
@@ -35,17 +42,21 @@ class Detection2Landmark(Node):
             target_frame = f"{tag.family}:{tag.id}"
             landmark.id = target_frame
             # if not transformation is found skip this and go to the next landmark
-            try: 
+            try:
                 tf = self.buffer.lookup_transform(self.parent_frame, target_frame, time)
             except tf2.TransformException:
                 continue
-            x, y, z = tf.transform.translation.x, tf.transform.translation.y, tf.transform.translation.z
+            x, y, z = (
+                tf.transform.translation.x,
+                tf.transform.translation.y,
+                tf.transform.translation.z,
+            )
             landmark.range = math.sqrt(x**2 + y**2)
             landmark.bearing = math.atan2(y, x)
             landmarks_msg.landmarks.append(landmark)
 
         self.landmark_array_pub.publish(landmarks_msg)
-        
+
 
 def main():
     rclpy.init()
@@ -56,7 +67,8 @@ def main():
         pass
     finally:
         node.destroy_node()  # cleans up pub-subs, etc
-        rclpy.try_shutdown()     
+        rclpy.try_shutdown()
+
 
 if __name__ == "__main__":
     main()
