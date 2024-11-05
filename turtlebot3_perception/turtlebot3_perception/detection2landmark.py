@@ -6,7 +6,7 @@ import tf2_py as tf2
 
 from rclpy.time import Time
 from apriltag_msgs.msg import AprilTagDetectionArray, AprilTagDetection
-from landmark_interfaces.msg import LandmarkArray, Landmark
+from landmark_msgs.msg import LandmarkArray, Landmark
 
 import math
 
