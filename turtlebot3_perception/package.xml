@@ -9,13 +9,19 @@
 
   <depend>apriltag_ros</depend>
   <depend>depthai_ros</depend>
+  <depend>geometry_msgs</depend>
   <depend>landmark_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>perception</depend>
   <depend>python3-matplotlib</depend>
+  <depend>python3-numpy</depend>
   <depend>python3-sklearn</depend>
+  <depend>python3-yaml</depend>
   <depend>rclcpp_components</depend>
   <depend>rclpy</depend>
   <depend>realsense2_camera</depend>
+  <depend>tf_transformations</depend>
+  <depend>tf2_py</depend>
   <depend>tf2_ros</depend>
 
   <test_depend>ament_copyright</test_depend>
