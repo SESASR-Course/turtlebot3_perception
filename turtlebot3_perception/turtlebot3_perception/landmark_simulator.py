@@ -42,7 +42,6 @@ class LandmarkSimulator(Node):
                 raise ValueError()
 
         self.tf_broadcaster = TransformBroadcaster(self)
-        self.robot_frame = self.declare_parameter("robot_frame", "base_footprint").get_parameter_value().string_value
         self.landmark_array_pub = self.create_publisher(LandmarkArray, "landmarks", 10)
         self.create_subscription(Odometry, "ground_truth", self.pose_update, 10)
         self.current_pose = None
@@ -92,7 +91,7 @@ class LandmarkSimulator(Node):
 
             tf = TransformStamped()
             tf.header.stamp = self.get_clock().now().to_msg()
-            tf.header.frame_id = self.robot_frame
+            tf.header.frame_id = self.current_pose.child_frame_id
             tf.child_frame_id = f"landmark_{id}"
             tf.transform.translation.x = landmark_msg.range * math.cos(landmark_msg.bearing)
             tf.transform.translation.y = landmark_msg.range * math.sin(landmark_msg.bearing)
