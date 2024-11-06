@@ -33,7 +33,7 @@ class Detection2Landmark(Node):
             landmark.goodness = tag.goodness
             landmark.decision_margin = tag.decision_margin
             target_frame = f"{tag.family}:{tag.id}"
-            landmark.id = target_frame
+            landmark.id = tag.id
             # if not transformation is found skip this and go to the next landmark
             try: 
                 tf = self.buffer.lookup_transform(self.parent_frame, target_frame, time)
