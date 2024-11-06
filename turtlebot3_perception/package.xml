@@ -8,7 +8,7 @@
   <license>Apache-2.0</license>
 
   <depend>apriltag_ros</depend>
-  <depend>depthai_ros</depend>
+  <depend>depthai-ros</depend>
   <depend>geometry_msgs</depend>
   <depend>landmark_msgs</depend>
   <depend>nav_msgs</depend>
