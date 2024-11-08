@@ -50,7 +50,7 @@ def generate_launch_description():
                     package="tf2_ros",
                     executable="static_transform_publisher",
                     arguments=[
-                        "--x", "-0.05", "--y", "0.0", "--z", "0.245",
+                        "--x", "-0.059", "--y", "0.0", "--z", "0.240",
                         "--roll", "0.0", "--pitch", "0.0", "--yaw", "0.0",
                         "--frame-id", "base_footprint", "--child-frame-id", "camera_link",
                     ],
@@ -71,7 +71,7 @@ def generate_launch_description():
                         "parent_frame": "base_footprint",
                         "cam_pos_x": "-0.062",
                         "cam_pos_y": "0.0",
-                        "cam_pos_z": "0.250",
+                        "cam_pos_z": "0.245",
                         "cam_roll": "0.0",
                         "cam_pitch": "0.0",
                         "cam_yaw": "0.0",
