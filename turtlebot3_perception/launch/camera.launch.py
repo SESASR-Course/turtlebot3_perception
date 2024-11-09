@@ -38,7 +38,10 @@ def generate_launch_description():
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
                         PathJoinSubstitution([FindPackageShare("turtlebot3_perception"), "launch", "rs_launch_composable.launch.py",])
-                    )
+                    ),
+                    launch_arguments={
+                        "rgb_camera.color_profile": "1280x720x6"
+                    }.items(),
                 )
             )
             ld.add_action(
@@ -73,6 +76,7 @@ def generate_launch_description():
                         "cam_pitch": "0.0",
                         "cam_yaw": "0.0",
                         "params_file": params_file,
+                        "rgb_camera.color_profile": "1280,720,6",
                     }.items(),
                 )
             )
