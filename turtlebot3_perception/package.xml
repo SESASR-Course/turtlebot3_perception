@@ -21,6 +21,7 @@
   <depend>rclcpp_components</depend>
   <depend>rclpy</depend>
   <depend>realsense2_camera</depend>
+  <depend>slam_toolbox</depend>
   <depend>tf_transformations</depend>
   <depend>tf2_py</depend>
   <depend>tf2_ros</depend>
