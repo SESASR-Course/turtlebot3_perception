@@ -27,6 +27,7 @@ setup(
             'detection2landmark = turtlebot3_perception.detection2landmark:main',
             'laserscan2lines = turtlebot3_perception.laserscan2lines_node:main',
             'landmark_simulator = turtlebot3_perception.landmark_simulator:main',
+            'landmarks_slam = turtlebot3_perception.landmarks_slam:main',
         ],
     },
 )
