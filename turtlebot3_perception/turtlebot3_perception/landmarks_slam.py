@@ -10,13 +10,17 @@ from landmark_msgs.msg import LandmarkArray
 import ruamel.yaml
 import numpy as np
 
+
 #####################################################
 # USED FOR PRETTY YAML OUTPUT
 def seq(*l):
-  s = ruamel.yaml.comments.CommentedSeq(l)
-  s.fa.set_flow_style()
-  return s
+    s = ruamel.yaml.comments.CommentedSeq(l)
+    s.fa.set_flow_style()
+    return s
+
+
 #####################################################
+
 
 class LandmarkSLAM(Node):
 
@@ -31,6 +35,7 @@ class LandmarkSLAM(Node):
         self.subscription = self.create_subscription(LandmarkArray, "landmarks", self.landmark_callback, 10)
         self.landmarks = set()
         self.landmarks_positions = {}
+        self.landmarks_positions_latest = {}
 
         self.create_timer(0.1, self.update_landmarks_position)
 
@@ -42,6 +47,7 @@ class LandmarkSLAM(Node):
                 if not lmark_id in self.landmarks_positions:
                     self.landmarks_positions[lmark_id] = []
                 self.landmarks_positions[lmark_id].append((x, y, z))
+                self.landmarks_positions_latest[lmark_id] = (x, y, z)
             except tf2.TransformException:
                 continue
 
@@ -55,6 +61,7 @@ class LandmarkSLAM(Node):
             self.landmarks_positions[lmark_id] = (x, y, z)
 
         self.landmarks_positions = dict(sorted(self.landmarks_positions.items()))
+        self.landmarks_positions_latest = dict(sorted(self.landmarks_positions_latest.items()))
 
         # OUTPUT AS TEXT FILE
         # with open("landmarks.txt", "w") as f:
@@ -80,6 +87,24 @@ class LandmarkSLAM(Node):
             yaml = ruamel.yaml.YAML()
             yaml.default_flow_style = False
             yaml.dump(self.landmarks_out, f)
+
+        self.landmarks_out = {"landmarks": {}}
+        self.landmarks_out["landmarks"]["id"] = seq()
+        self.landmarks_out["landmarks"]["x"] = seq()
+        self.landmarks_out["landmarks"]["y"] = seq()
+        self.landmarks_out["landmarks"]["z"] = seq()
+        for lmark_id, (x, y, z) in self.landmarks_positions_latest.items():
+            self.landmarks_out["landmarks"]["id"].append(lmark_id)
+            self.landmarks_out["landmarks"]["x"].append(round(float(x), 3))
+            self.landmarks_out["landmarks"]["y"].append(round(float(y), 3))
+            self.landmarks_out["landmarks"]["z"].append(round(float(z), 3))
+        with open("landmarks_latest.yaml", "w") as f:
+            # for l in self.landmarks_out["landmarks"]:
+            #     self.landmarks_out["landmarks"][l] = seq(*self.landmarks_out["landmarks"][l])
+            yaml = ruamel.yaml.YAML()
+            yaml.default_flow_style = False
+            yaml.dump(self.landmarks_out, f)
+
 
 def main():
     rclpy.init()
