@@ -4,27 +4,8 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-from ament_index_python import get_package_share_directory
 
 import os
-import xacro
-import tempfile
-
-def to_urdf(xacro_path, parameters=None):
-    """Convert the given xacro file to URDF file.
-    * xacro_path -- the path to the xacro file
-    * parameters -- to be used when xacro file is parsed.
-    """
-    with tempfile.NamedTemporaryFile(prefix="%s_" % os.path.basename(xacro_path), delete=False) as xacro_file:
-        urdf_path = xacro_file.name
-
-    # open and process file
-    doc = xacro.process_file(xacro_path, mappings=parameters)
-    # open the output file
-    with open(urdf_path, 'w') as urdf_file:
-        urdf_file.write(doc.toprettyxml(indent='  '))
-
-    return urdf_path
 
 def generate_launch_description():
     ld = LaunchDescription()
