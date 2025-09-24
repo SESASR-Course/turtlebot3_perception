@@ -4,7 +4,11 @@ from launch_ros.descriptions import ComposableNode
 from ament_index_python import get_package_share_directory
 
 import os
+import yaml
 
+def yaml_to_dict(path_to_yaml):
+    with open(path_to_yaml, "r") as f:
+        return yaml.load(f, Loader=yaml.SafeLoader)
 
 def generate_launch_description():
 
@@ -13,6 +17,7 @@ def generate_launch_description():
     params = os.path.join(
         get_package_share_directory(package_name), "config", "apriltag.yaml"
     )
+    params = yaml_to_dict(params)
 
     load_composable_nodes = LoadComposableNodes(
         target_container="/camera/camera_container",
@@ -26,7 +31,7 @@ def generate_launch_description():
                     ("image_rect", "camera/color/image_raw"),
                     ("camera_info", "camera/color/camera_info"),
                 ],
-                parameters=[params],
+                parameters=[params["camera"]["apriltag"]],
                 extra_arguments=[{"use_intra_process_comms": True}],
             ),
         ],
