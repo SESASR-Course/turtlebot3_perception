@@ -21,7 +21,8 @@ def generate_launch_description():
                         PathJoinSubstitution([FindPackageShare("turtlebot3_perception"), "launch", "rs_launch_composable.launch.py",])
                     ),
                     launch_arguments={
-                        "rgb_camera.color_profile": "1280x720x6"
+                        "rgb_camera.color_profile": "640,480,30",
+                        "depth_module.enable_depth": "false",    
                     }.items(),
                 )
             )
@@ -57,7 +58,10 @@ def generate_launch_description():
                         "cam_pitch": "0.0",
                         "cam_yaw": "0.0",
                         "params_file": params_file,
-                        "rgb_camera.color_profile": "1280,720,6",
+                        "rgb_camera.color_profile": "640,480,30",
+                        "enable_depth": "false",
+                        "enable_infra1": "false",
+                        "enable_infra2": "false",
                     }.items(),
                 )
             )

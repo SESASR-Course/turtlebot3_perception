@@ -131,6 +131,7 @@ def launch_setup(context, params, param_name_suffix=""):
             executable="component_container",
             composable_node_descriptions=[
                 ComposableNode(
+                    namespace=LaunchConfiguration("camera_namespace" + param_name_suffix),
                     package="realsense2_camera",
                     plugin="realsense2_camera::RealSenseNodeFactory",
                     name=LaunchConfiguration("camera_name" + param_name_suffix),

@@ -4,4 +4,4 @@
       i_enable_imu: false
       i_enable_ir: true
       i_nn_type: none
-      i_pipeline_type: RGBD
+      i_pipeline_type: RGB
