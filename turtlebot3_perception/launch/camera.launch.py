@@ -11,6 +11,7 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     CAMERA_MODEL = os.environ["CAMERA_MODEL"]
+    profile = "640,480,30"
 
     match CAMERA_MODEL:
         case "realsense":
@@ -21,7 +22,7 @@ def generate_launch_description():
                         PathJoinSubstitution([FindPackageShare("turtlebot3_perception"), "launch", "rs_launch_composable.launch.py",])
                     ),
                     launch_arguments={
-                        "rgb_camera.color_profile": "1280,720,6",
+                        "rgb_camera.color_profile": profile,
                         "depth_module.enable_depth": "false",    
                     }.items(),
                 )
@@ -46,7 +47,7 @@ def generate_launch_description():
             ld.add_action(
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
-                        PathJoinSubstitution([FindPackageShare("depthai_ros_driver"), "launch", "camera.launch.py"])
+                        PathJoinSubstitution([FindPackageShare("depthai_ros_driver_v3"), "launch", "driver.launch.py"])
                     ),
                     launch_arguments={
                         "rs_compat": "true",
@@ -58,8 +59,10 @@ def generate_launch_description():
                         "cam_pitch": "0.0",
                         "cam_yaw": "0.0",
                         "params_file": params_file,
-                        "rgb_camera.color_profile": "1280,720,6",
-                        "enable_depth": "false",
+                        "rgb_camera.color_profile": profile,
+                        "depth_module.infra_profile": profile,
+                        "depth_module.depth_profile": profile,
+                        "enable_depth": "true",
                         "enable_infra1": "false",
                         "enable_infra2": "false",
                     }.items(),

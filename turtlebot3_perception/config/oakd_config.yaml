@@ -2,6 +2,7 @@
   ros__parameters:
     camera:
       i_enable_imu: false
-      i_enable_ir: true
+      i_enable_ir: false
       i_nn_type: none
+    pipeline_gen:
       i_pipeline_type: RGB
